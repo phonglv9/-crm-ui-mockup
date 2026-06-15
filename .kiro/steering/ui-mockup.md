@@ -24,14 +24,35 @@ lam tai lieu tham chieu cho dev **Flutter** lam theo. Khong phai production app.
 
 ```
 crm-ui-mockup/
-├── index.html             # Design system gallery (mau, typography, component)
+├── index.html             # App shell (top bar + sidebar + mount #view + #filterPanel)
 ├── assets/
-│   ├── theme.js           # Design tokens (brand colors, font, radius, shadow)
-│   └── mock-data.js       # TAT CA du lieu mock tap trung o day
-├── screens/
-│   └── *.html             # Moi man hinh 1 file, dat ten theo nghiep vu
+│   ├── theme.js           # Design tokens. NAP SAU thẻ Tailwind CDN (neu khong se mat config)
+│   ├── mock-data.js       # TAT CA du lieu mock tap trung o day
+│   └── app.js             # Hash router + render template + cac page
 └── .kiro/steering/        # File nay
 ```
+
+## Kien truc SPA + Router (QUAN TRONG)
+
+- Day la **SPA 1 trang** dung **hash router** (`#/path`) trong `assets/app.js`. Hash router chay
+  duoc tren Cloudflare Pages ma khong can cau hinh rewrite.
+- Top bar + sidebar + panel phai la **template dung chung**, khong ve lai moi trang.
+- Them man hinh moi = them 1 entry vao object `routes` trong `app.js`:
+  `"#/duong-dan": { title, filter?, render(), after?() }`.
+  - `render()` tra ve chuoi HTML cho khu vuc giua (`#view`).
+  - `filter: true` -> hien panel phai.
+  - `after()` (tuy chon) chay sau khi gan HTML de bind su kien.
+- Them route vao menu: sua mang `menu` trong `mock-data.js` (moi child co `label` + `route`).
+
+## LOI HAY GAP: Tailwind Play CDN khong an mau
+
+Phai nap **Tailwind CDN TRUOC**, roi moi nap `theme.js` (set `tailwind.config`):
+```html
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="./assets/theme.js"></script>
+```
+Neu nap theme.js truoc CDN -> CDN ghi de `window.tailwind` -> mat config -> cac class
+`bg-brand-*`, `text-ink-*`, `bg-success/10`... bi bo qua (giao dien "xau", nut mat mau).
 
 ## Design tokens (assets/theme.js)
 
@@ -65,12 +86,13 @@ crm-ui-mockup/
 
 1. Doc controller + DTO ben CRM, liet ke endpoint + field.
 2. Them mock tuong ung vao `assets/mock-data.js` (du lieu gia, an danh).
-3. Tao `screens/<ten>.html` dung component co san, nap `theme.js` + `mock-data.js`.
+3. Them route vao object `routes` trong `app.js` + them child vao `menu` (mock-data.js).
 4. Tuyet doi khong them code goi API.
 
 ## App shell layout (theo giao dien that)
 
-Cac man hinh dang "trang quan ly" theo layout 3 cot, tham chieu `screens/order-management.html`:
+Cac man hinh dang "trang quan ly" theo layout 3 cot (template dung chung trong `index.html`,
+noi dung do `app.js` render):
 
 - **Top bar** (h-14, trang): nut thu menu `«`, logo + "Japfa Feed - Sales", o tim kiem, ben phai la
   "Bo loc tim kiem" + nut an/hien panel.

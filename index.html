@@ -3,103 +3,77 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CRM Design System - Mockup</title>
+  <title>Japfa Feed - Sales (Mockup)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <!-- 1) Tokens dung chung  2) Tailwind Play CDN (khong can build) -->
-  <script src="./assets/theme.js"></script>
+  <!-- QUAN TRONG: nap Tailwind CDN TRUOC, roi moi set config (theme.js) -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="./assets/theme.js"></script>
+  <style>
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+  </style>
 </head>
-<body class="bg-ink-100 font-sans text-ink-900">
-  <!-- Header -->
-  <header class="bg-white border-b border-ink-300">
-    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="h-9 w-9 rounded-lg bg-brand-500 grid place-items-center text-white font-bold">J</div>
-        <div>
-          <h1 class="font-semibold leading-tight">CRM Design System</h1>
-          <p class="text-xs text-ink-500">Mockup tham chieu cho dev Flutter</p>
-        </div>
+<body class="bg-ink-100 font-sans text-ink-900 h-screen flex flex-col overflow-hidden">
+
+  <!-- ===== TOP BAR ===== -->
+  <header class="h-14 bg-white border-b border-ink-300 flex items-center px-3 gap-3 shrink-0 z-20">
+    <button id="btnCollapse" class="h-8 w-8 grid place-items-center rounded hover:bg-ink-100 text-ink-500" title="Thu gọn menu">
+      <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m11 17-5-5 5-5"/><path d="m18 17-5-5 5-5"/></svg>
+    </button>
+    <div class="flex items-center gap-2">
+      <div class="h-8 w-8 rounded-lg bg-brand-500 grid place-items-center text-white font-bold text-sm">J</div>
+      <span class="font-semibold text-[15px]">Japfa Feed - Sales</span>
+    </div>
+    <div class="flex-1 max-w-sm ml-4">
+      <div class="relative">
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg>
+        <input type="text" placeholder="Tìm kiếm"
+          class="w-full pl-9 pr-3 py-1.5 rounded-lg bg-ink-100 border border-transparent focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-200 outline-none text-sm" />
       </div>
-      <a href="./screens/order-management.html" class="text-sm font-medium text-brand-600 hover:text-brand-700">Xem man hinh Quan ly don hang &rarr;</a>
+    </div>
+    <div class="ml-auto flex items-center gap-1 text-ink-500">
+      <button class="h-8 w-8 grid place-items-center rounded hover:bg-ink-100" title="Ngôn ngữ">
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h9M9 4v4m1.5 0c0 4-2.5 8-6.5 9M7 12c0 3 3 5 7 6"/><path d="m13 20 4-9 4 9M14.5 17h5"/></svg>
+      </button>
+      <button class="h-8 w-8 grid place-items-center rounded hover:bg-ink-100" title="Dạng lưới">
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      </button>
     </div>
   </header>
 
-  <main class="max-w-6xl mx-auto px-6 py-10 space-y-12">
-
-    <!-- Mau sac -->
-    <section>
-      <h2 class="text-lg font-semibold mb-1">Bang mau (Colors)</h2>
-      <p class="text-sm text-ink-500 mb-4">Token <code class="text-brand-600">brand.*</code> &mdash; doi trong assets/theme.js.</p>
-      <div class="grid grid-cols-5 sm:grid-cols-10 gap-2">
-        <div class="space-y-1"><div class="h-12 rounded-lg bg-brand-50"></div><p class="text-[10px] text-center text-ink-500">50</p></div>
-        <div class="space-y-1"><div class="h-12 rounded-lg bg-brand-100"></div><p class="text-[10px] text-center text-ink-500">100</p></div>
-        <div class="space-y-1"><div class="h-12 rounded-lg bg-brand-200"></div><p class="text-[10px] text-center text-ink-500">200</p></div>
-        <div class="space-y-1"><div class="h-12 rounded-lg bg-brand-300"></div><p class="text-[10px] text-center text-ink-500">300</p></div>
-        <div class="space-y-1"><div class="h-12 rounded-lg bg-brand-400"></div><p class="text-[10px] text-center text-ink-500">400</p></div>
-        <div class="space-y-1"><div class="h-12 rounded-lg bg-brand-500 ring-2 ring-offset-2 ring-brand-500"></div><p class="text-[10px] text-center text-ink-500">500</p></div>
-        <div class="space-y-1"><div class="h-12 rounded-lg bg-brand-600"></div><p class="text-[10px] text-center text-ink-500">600</p></div>
-        <div class="space-y-1"><div class="h-12 rounded-lg bg-brand-700"></div><p class="text-[10px] text-center text-ink-500">700</p></div>
-        <div class="space-y-1"><div class="h-12 rounded-lg bg-brand-800"></div><p class="text-[10px] text-center text-ink-500">800</p></div>
-        <div class="space-y-1"><div class="h-12 rounded-lg bg-brand-900"></div><p class="text-[10px] text-center text-ink-500">900</p></div>
+  <!-- ===== BODY: 3 COT ===== -->
+  <div class="flex-1 flex overflow-hidden">
+    <!-- SIDEBAR TRAI -->
+    <aside id="sidebar" class="w-60 bg-white border-r border-ink-300 flex flex-col shrink-0 transition-all">
+      <div class="p-3 space-y-1 border-b border-ink-100">
+        <button class="w-full flex items-center justify-between gap-2 text-sm px-2 py-1.5 rounded hover:bg-ink-100">
+          <span class="truncate min-w-0"><span class="text-ink-500">Nhóm:</span> <span class="font-semibold text-brand-600">SALE</span></span>
+          <svg class="h-4 w-4 text-ink-300 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <button class="w-full flex items-center justify-between gap-2 text-sm px-2 py-1.5 rounded hover:bg-ink-100">
+          <span class="truncate min-w-0"><span class="text-ink-500">Nhà máy:</span> <span class="font-medium text-brand-600">FM HƯƠNG CANH</span></span>
+          <svg class="h-4 w-4 text-ink-300 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
       </div>
-    </section>
-
-    <!-- Typography -->
-    <section>
-      <h2 class="text-lg font-semibold mb-4">Typography (Inter)</h2>
-      <div class="bg-white rounded-card shadow-card p-6 space-y-2">
-        <p class="text-3xl font-bold">Heading 1 &mdash; 30/700</p>
-        <p class="text-xl font-semibold">Heading 2 &mdash; 20/600</p>
-        <p class="text-base">Body &mdash; 16/400</p>
-        <p class="text-sm text-ink-500">Caption &mdash; 14/400 ink-500</p>
+      <nav id="menu" class="flex-1 overflow-y-auto p-2 space-y-0.5 text-sm"></nav>
+      <div class="p-3 border-t border-ink-100 flex items-center gap-2 text-sm text-ink-500">
+        <span class="h-7 w-7 rounded-full bg-brand-500 grid place-items-center text-white shrink-0">
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg>
+        </span>
+        Tải phiên bản mobile
+        <svg class="h-4 w-4 ml-auto text-ink-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
       </div>
-    </section>
+    </aside>
 
-    <!-- Buttons -->
-    <section>
-      <h2 class="text-lg font-semibold mb-4">Buttons</h2>
-      <div class="bg-white rounded-card shadow-card p-6 flex flex-wrap gap-3 items-center">
-        <button class="px-4 py-2 rounded-lg bg-brand-500 text-white font-medium hover:bg-brand-600 transition">Primary</button>
-        <button class="px-4 py-2 rounded-lg bg-brand-50 text-brand-700 font-medium hover:bg-brand-100 transition">Secondary</button>
-        <button class="px-4 py-2 rounded-lg border border-ink-300 text-ink-700 font-medium hover:bg-ink-100 transition">Outline</button>
-        <button class="px-4 py-2 rounded-lg bg-danger text-white font-medium hover:opacity-90 transition">Danger</button>
-        <button class="px-4 py-2 rounded-lg bg-ink-100 text-ink-300 font-medium cursor-not-allowed" disabled>Disabled</button>
-      </div>
-    </section>
+    <!-- NOI DUNG GIUA (router mount) -->
+    <main id="view" class="flex-1 flex flex-col overflow-hidden bg-white"></main>
 
-    <!-- Inputs + Badges -->
-    <section class="grid md:grid-cols-2 gap-6">
-      <div>
-        <h2 class="text-lg font-semibold mb-4">Form inputs</h2>
-        <div class="bg-white rounded-card shadow-card p-6 space-y-4">
-          <div>
-            <label class="block text-sm font-medium mb-1">Ma khach hang</label>
-            <input type="text" placeholder="VD: CUST-0001"
-              class="w-full px-3 py-2 rounded-lg border border-ink-300 focus:border-brand-500 focus:ring-2 focus:ring-brand-200 outline-none" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium mb-1">Tu ngay</label>
-            <input type="date"
-              class="w-full px-3 py-2 rounded-lg border border-ink-300 focus:border-brand-500 focus:ring-2 focus:ring-brand-200 outline-none" />
-          </div>
-        </div>
-      </div>
-      <div>
-        <h2 class="text-lg font-semibold mb-4">Badges / Status</h2>
-        <div class="bg-white rounded-card shadow-card p-6 flex flex-wrap gap-2">
-          <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-success/10 text-success">Thanh cong</span>
-          <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-warning/10 text-warning">Cho duyet</span>
-          <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-danger/10 text-danger">Tu choi</span>
-          <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-brand-50 text-brand-700">Moi</span>
-        </div>
-      </div>
-    </section>
+    <!-- PANEL PHAI (router co the hien/an) -->
+    <aside id="filterPanel" class="w-72 bg-white border-l border-ink-300 flex-col shrink-0 hidden"></aside>
+  </div>
 
-  </main>
-
-  <footer class="max-w-6xl mx-auto px-6 py-8 text-xs text-ink-500">
-    Mockup tham chieu &mdash; HTML/JS thuan + Tailwind Play CDN. Du lieu la mock gia. Khong dung cho production.
-  </footer>
+  <script src="./assets/mock-data.js"></script>
+  <script src="./assets/app.js"></script>
 </body>
 </html>

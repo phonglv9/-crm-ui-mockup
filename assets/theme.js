@@ -8,18 +8,18 @@ window.tailwind.config = {
   theme: {
     extend: {
       colors: {
-        // Brand Japfa (xanh la). Dev Flutter map sang ColorScheme.
+        // Brand teal (giong giao dien CRM that). Dev Flutter map sang ColorScheme.
         brand: {
-          50: "#eefbf2",
-          100: "#d6f5df",
-          200: "#afe9c2",
-          300: "#7bd79e",
-          400: "#45bd74",
-          500: "#1fa257", // primary
-          600: "#138246",
-          700: "#11673a",
-          800: "#115231",
-          900: "#0f432a",
+          50: "#eefcfb",
+          100: "#d3f6f4",
+          200: "#a8ece9",
+          300: "#6fdcd8",
+          400: "#34c3bf",
+          500: "#14a8a4", // primary
+          600: "#0c8a87",
+          700: "#0e6e6c",
+          800: "#115857",
+          900: "#114848",
         },
         ink: {
           // Mau chu / nen trung tinh
