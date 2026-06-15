@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quan ly don hang - Japfa Feed Sales</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="../assets/theme.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="../assets/mock-data.js"></script>
+  <style>
+    /* scrollbar gon cho panel */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+  </style>
+</head>
+<body class="bg-ink-100 font-sans text-ink-900 h-screen flex flex-col overflow-hidden">
+
+  <!-- ===== TOP BAR ===== -->
+  <header class="h-14 bg-white border-b border-ink-300 flex items-center px-3 gap-3 shrink-0">
+    <button class="h-8 w-8 grid place-items-center rounded hover:bg-ink-100 text-ink-500" title="Thu gon menu">&laquo;</button>
+    <div class="flex items-center gap-2">
+      <div class="h-8 w-8 rounded-lg bg-brand-500 grid place-items-center text-white font-bold text-sm">J</div>
+      <span class="font-semibold text-[15px]">Japfa Feed - Sales</span>
+    </div>
+    <!-- Search -->
+    <div class="flex-1 max-w-md ml-4">
+      <div class="relative">
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg>
+        <input type="text" placeholder="Tim kiem"
+          class="w-full pl-9 pr-3 py-1.5 rounded-lg bg-ink-100 border border-transparent focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-200 outline-none text-sm" />
+      </div>
+    </div>
+    <div class="ml-auto flex items-center gap-2 text-ink-500">
+      <button class="h-8 w-8 grid place-items-center rounded hover:bg-ink-100" title="Dang luoi"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></button>
+      <span class="font-medium text-ink-700 text-sm ml-2">Bo loc tim kiem</span>
+      <button onclick="toggleFilter()" class="flex items-center gap-1 text-brand-600 text-sm font-medium hover:text-brand-700">
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>
+        <span id="filterToggleLabel">An/hien</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ===== BODY: 3 COT ===== -->
+  <div class="flex-1 flex overflow-hidden">
+
+    <!-- SIDEBAR TRAI -->
+    <aside class="w-60 bg-white border-r border-ink-300 flex flex-col shrink-0">
+      <!-- Context: nhom + nha may -->
+      <div class="p-3 space-y-2 border-b border-ink-100">
+        <button class="w-full flex items-center justify-between text-sm px-2 py-1.5 rounded hover:bg-ink-100">
+          <span><span class="text-ink-500">Nhom:</span> <span class="font-semibold text-brand-600">SALE</span></span>
+          <svg class="h-4 w-4 text-ink-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <button class="w-full flex items-center justify-between text-sm px-2 py-1.5 rounded hover:bg-ink-100">
+          <span><span class="text-ink-500">Nha may:</span> <span class="font-medium">FM HUONG CANH</span></span>
+          <svg class="h-4 w-4 text-ink-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+      </div>
+      <!-- Menu -->
+      <nav id="menu" class="flex-1 overflow-y-auto p-2 space-y-0.5 text-sm"></nav>
+      <!-- Footer -->
+      <div class="p-3 border-t border-ink-100 flex items-center gap-2 text-sm text-ink-500">
+        <svg class="h-5 w-5 text-brand-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg>
+        Tai phien ban mobile
+        <svg class="h-4 w-4 ml-auto text-ink-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      </div>
+    </aside>
+
+    <!-- NOI DUNG GIUA -->
+    <main class="flex-1 flex flex-col overflow-hidden bg-white">
+      <!-- Tabs -->
+      <div id="tabs" class="flex items-center gap-1 px-4 border-b border-ink-300 overflow-x-auto shrink-0"></div>
+      <!-- Bang -->
+      <div class="flex-1 overflow-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-ink-100 text-ink-500 text-left sticky top-0">
+            <tr>
+              <th class="px-4 py-2.5 font-medium">So phieu(Noi bo)</th>
+              <th class="px-4 py-2.5 font-medium">Ten khach hang</th>
+              <th class="px-4 py-2.5 font-medium">Thoi gian cap nhat cuoi &uarr;</th>
+              <th class="px-4 py-2.5 font-medium">Ngay lay hang</th>
+            </tr>
+          </thead>
+          <tbody id="rows" class="divide-y divide-ink-100"></tbody>
+        </table>
+        <div id="emptyState" class="hidden py-20 text-center text-ink-300 text-sm">Khong co du lieu</div>
+      </div>
+    </main>
+
+    <!-- PANEL PHAI: bo loc -->
+    <aside id="filterPanel" class="w-72 bg-white border-l border-ink-300 flex flex-col shrink-0">
+      <div class="px-4 py-3 border-b border-ink-100 flex items-center justify-between">
+        <span class="font-semibold text-sm">KHO HUONG CANH</span>
+        <svg class="h-4 w-4 text-ink-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
+      <div class="p-4 space-y-4 overflow-y-auto text-sm">
+        <!-- Khoang ngay -->
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-xs text-ink-500 mb-1">Tu ngay</label>
+            <input type="date" value="2026-05-31" class="w-full px-2 py-1.5 rounded-lg border border-ink-300 focus:border-brand-500 focus:ring-2 focus:ring-brand-200 outline-none text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs text-ink-500 mb-1">Den ngay</label>
+            <input type="date" value="2026-06-30" class="w-full px-2 py-1.5 rounded-lg border border-ink-300 focus:border-brand-500 focus:ring-2 focus:ring-brand-200 outline-none text-sm" />
+          </div>
+        </div>
+        <!-- Danh sach khach hang -->
+        <div>
+          <label class="block text-xs text-ink-500 mb-1">Danh sach khach hang</label>
+          <div id="custCodes" class="text-xs text-ink-700 break-words leading-relaxed bg-ink-100 rounded-lg p-2"></div>
+        </div>
+        <!-- Danh sach salesmans -->
+        <div>
+          <label class="block text-xs text-ink-500 mb-2">Danh sach salesmans</label>
+          <div id="salesmen" class="space-y-2"></div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    const M = window.MockData;
+    let activeTab = "chua_dat";
+
+    const chevron = (open) =>
+      `<svg class="h-4 w-4 text-ink-300 transition ${open ? "rotate-180" : ""}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>`;
+
+    // ---- Menu trai ----
+    function renderMenu() {
+      document.getElementById("menu").innerHTML = M.menu.map((m) => {
+        const children = m.open && m.children.length
+          ? `<div class="mt-0.5 mb-1 space-y-0.5">${m.children.map((c) => {
+              const active = c.startsWith("2.");
+              return `<a href="#" class="block pl-11 pr-2 py-1.5 rounded-lg text-[13px] ${active ? "text-brand-600 bg-brand-50 font-medium" : "text-ink-700 hover:bg-ink-100"}">${c}</a>`;
+            }).join("")}</div>`
+          : "";
+        return `
+          <div>
+            <button class="w-full flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-ink-100">
+              <span class="h-6 w-6 rounded-md ${m.color} grid place-items-center text-white shrink-0">
+                <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/></svg>
+              </span>
+              <span class="flex-1 text-left font-medium text-ink-700">${m.label}</span>
+              ${chevron(m.open)}
+            </button>
+            ${children}
+          </div>`;
+      }).join("");
+    }
+
+    // ---- Tabs ----
+    function renderTabs() {
+      document.getElementById("tabs").innerHTML = M.orderTabs.map((t) => {
+        const active = t.key === activeTab;
+        const badge = t.badge > 0
+          ? `<span class="ml-1 inline-grid place-items-center h-4 min-w-4 px-1 rounded-full bg-danger text-white text-[10px] font-semibold align-middle">${t.badge}</span>`
+          : "";
+        return `<button onclick="setTab('${t.key}')"
+          class="relative px-3 py-3 text-sm whitespace-nowrap border-b-2 -mb-px ${active ? "border-brand-500 text-brand-600 font-semibold" : "border-transparent text-ink-700 hover:text-ink-900"}">
+          ${t.label}${badge}</button>`;
+      }).join("");
+    }
+
+    // ---- Bang ----
+    const fmtDate = (d) => d ? d : '<span class="text-ink-300">&mdash;</span>';
+    function renderRows() {
+      const data = M.orders[activeTab] || [];
+      const tbody = document.getElementById("rows");
+      const empty = document.getElementById("emptyState");
+      if (!data.length) { tbody.innerHTML = ""; empty.classList.remove("hidden"); return; }
+      empty.classList.add("hidden");
+      tbody.innerHTML = data.map((r) => `
+        <tr class="hover:bg-brand-50/40 cursor-pointer">
+          <td class="px-4 py-3 font-medium text-brand-600">${r.so_phieu_noibo}</td>
+          <td class="px-4 py-3">${r.ten_khach_hang}</td>
+          <td class="px-4 py-3 text-ink-700">${fmtDate(r.thoi_gian_cap_nhat)}</td>
+          <td class="px-4 py-3">${fmtDate(r.ngay_lay_hang)}</td>
+        </tr>`).join("");
+    }
+
+    // ---- Panel phai ----
+    function renderFilter() {
+      document.getElementById("custCodes").textContent = M.customerCodes.join(", ");
+      document.getElementById("salesmen").innerHTML = M.salesmen.map((s) => `
+        <label class="flex items-center gap-3 p-2 rounded-lg border border-ink-300 hover:bg-ink-100 cursor-pointer">
+          <input type="checkbox" ${s.checked ? "checked" : ""} class="h-4 w-4 accent-brand-500" />
+          <span class="flex-1">
+            <span class="block font-medium text-ink-900">${s.fullName}</span>
+            <span class="block text-xs text-ink-500">${s.code}</span>
+            <span class="block text-xs text-ink-500">${s.role}</span>
+          </span>
+          <span class="text-ink-500 text-sm">${s.orderCount}</span>
+        </label>`).join("");
+    }
+
+    function setTab(key) { activeTab = key; renderTabs(); renderRows(); }
+    function toggleFilter() {
+      const p = document.getElementById("filterPanel");
+      p.classList.toggle("hidden");
+    }
+
+    renderMenu(); renderTabs(); renderRows(); renderFilter();
+  </script>
+</body>
+</html>

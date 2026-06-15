@@ -67,3 +67,19 @@ crm-ui-mockup/
 2. Them mock tuong ung vao `assets/mock-data.js` (du lieu gia, an danh).
 3. Tao `screens/<ten>.html` dung component co san, nap `theme.js` + `mock-data.js`.
 4. Tuyet doi khong them code goi API.
+
+## App shell layout (theo giao dien that)
+
+Cac man hinh dang "trang quan ly" theo layout 3 cot, tham chieu `screens/order-management.html`:
+
+- **Top bar** (h-14, trang): nut thu menu `«`, logo + "Japfa Feed - Sales", o tim kiem, ben phai la
+  "Bo loc tim kiem" + nut an/hien panel.
+- **Sidebar trai** (w-60, trang): context (Nhom / Nha may co dropdown), menu nhom co the mo/dong
+  (icon vuong bo goc mau, chevron), item con thut le; item dang chon dung `text-brand-600 bg-brand-50`.
+  Footer "Tai phien ban mobile".
+- **Noi dung giua** (flex-1, trang): hang tab co gach chan (active = `border-brand-500 text-brand-600`),
+  badge so mau do `bg-danger`; ben duoi la bang co header `sticky bg-ink-100`, row `hover:bg-brand-50/40`.
+- **Panel phai** (w-72, trang): header kho/khu vuc, khoang ngay (2 input date), danh sach ma KH,
+  danh sach salesmans dang the co checkbox.
+
+Icon: dung inline SVG (stroke 2). Khong them thu vien icon nang. Toan bo data lay tu `MockData`.
