@@ -1,0 +1,11 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+*.log
+
+# Editor settings (giu .kiro/steering, bo cac thu rieng neu can)
+.vscode/
+
+# Khong co build step nen khong co node_modules / dist
+node_modules/
+dist/
