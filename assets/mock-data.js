@@ -33,6 +33,7 @@ window.MockData = {
         { label: "5. Quản lý hoạt động đổi quà",   route: "#/rewards" },
         { label: "9. AI forecast",                 route: "#/ai-forecast" },
         { label: "10. Sales Forecast Tháng",       route: "#/forecast-month" },
+        { label: "11. Forecast nội bộ (ITN)",      route: "#/forecast-itn" },
         { label: "12. Review Salesforecast V2",    route: "#/review-sfc" },
       ],
     },
@@ -85,5 +86,67 @@ window.MockData = {
     get tat_ca() {
       return [].concat(this.chua_dat, this.cho_xac_nhan, this.da_xac_nhan, this.dang_nhan, this.da_nhan, this.da_huy);
     },
+  },
+
+  // ----- Forecast noi bo (SALES_FORECAST_ITN) -----
+  // Map 1-1 voi SfcItnDataDTO: { importMonth, importYear, plants[], months[] }
+  //   months[]:        { monthOffset, forecastMonth, forecastYear, productGroups[] }
+  //   productGroups[]: { productGroupDesc, skus[] }
+  //   skus[]:          { id, plant, materialCode, materialName, forecastMonth, forecastYear, forecast }
+  // (totalForecast cua month/group duoc tinh lai khi render de tranh lech so lieu)
+  itn: {
+    importMonth: 6,
+    importYear: 2026,
+    plants: ["1001", "1002"],
+    plantOptions: [
+      { code: "1001", name: "FM Hương Canh" },
+      { code: "1002", name: "FM Bình Định" },
+    ],
+    months: [
+      {
+        monthOffset: 1, forecastMonth: 7, forecastYear: 2026,
+        productGroups: [
+          { productGroupDesc: "Heo", skus: [
+            { id: 1,  plant: "1001", materialCode: "000000000010010001", materialName: "Cám heo con tập ăn 10kg", forecastMonth: 7, forecastYear: 2026, forecast: 1200 },
+            { id: 2,  plant: "1001", materialCode: "000000000010010002", materialName: "Cám heo thịt 25kg",        forecastMonth: 7, forecastYear: 2026, forecast: 3400 },
+            { id: 3,  plant: "1002", materialCode: "000000000010010002", materialName: "Cám heo thịt 25kg",        forecastMonth: 7, forecastYear: 2026, forecast: 2800 },
+          ] },
+          { productGroupDesc: "Gà", skus: [
+            { id: 4,  plant: "1001", materialCode: "000000000020010001", materialName: "Cám gà thịt 25kg",         forecastMonth: 7, forecastYear: 2026, forecast: 5100 },
+            { id: 5,  plant: "1002", materialCode: "000000000020010002", materialName: "Cám gà đẻ 25kg",           forecastMonth: 7, forecastYear: 2026, forecast: 1750 },
+          ] },
+        ],
+      },
+      {
+        monthOffset: 2, forecastMonth: 8, forecastYear: 2026,
+        productGroups: [
+          { productGroupDesc: "Heo", skus: [
+            { id: 6,  plant: "1001", materialCode: "000000000010010001", materialName: "Cám heo con tập ăn 10kg", forecastMonth: 8, forecastYear: 2026, forecast: 1300 },
+            { id: 7,  plant: "1001", materialCode: "000000000010010002", materialName: "Cám heo thịt 25kg",        forecastMonth: 8, forecastYear: 2026, forecast: 3550 },
+            { id: 8,  plant: "1002", materialCode: "000000000010010002", materialName: "Cám heo thịt 25kg",        forecastMonth: 8, forecastYear: 2026, forecast: 2950 },
+          ] },
+          { productGroupDesc: "Gà", skus: [
+            { id: 9,  plant: "1001", materialCode: "000000000020010001", materialName: "Cám gà thịt 25kg",         forecastMonth: 8, forecastYear: 2026, forecast: 4900 },
+            { id: 10, plant: "1002", materialCode: "000000000020010002", materialName: "Cám gà đẻ 25kg",           forecastMonth: 8, forecastYear: 2026, forecast: 1820 },
+          ] },
+        ],
+      },
+      {
+        monthOffset: 3, forecastMonth: 9, forecastYear: 2026,
+        productGroups: [
+          { productGroupDesc: "Heo", skus: [
+            { id: 11, plant: "1001", materialCode: "000000000010010001", materialName: "Cám heo con tập ăn 10kg", forecastMonth: 9, forecastYear: 2026, forecast: 1250 },
+            { id: 12, plant: "1002", materialCode: "000000000010010002", materialName: "Cám heo thịt 25kg",        forecastMonth: 9, forecastYear: 2026, forecast: 3000 },
+          ] },
+          { productGroupDesc: "Gà", skus: [
+            { id: 13, plant: "1001", materialCode: "000000000020010001", materialName: "Cám gà thịt 25kg",         forecastMonth: 9, forecastYear: 2026, forecast: 5300 },
+            { id: 14, plant: "1002", materialCode: "000000000020010002", materialName: "Cám gà đẻ 25kg",           forecastMonth: 9, forecastYear: 2026, forecast: 1900 },
+          ] },
+          { productGroupDesc: "(Khác)", skus: [
+            { id: 15, plant: "1001", materialCode: "000000000090010001", materialName: "Phụ phẩm chưa phân nhóm",  forecastMonth: 9, forecastYear: 2026, forecast: 420 },
+          ] },
+        ],
+      },
+    ],
   },
 };
