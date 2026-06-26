@@ -393,9 +393,13 @@
   var ph = function (t) { return function () { return ui.placeholder(t); }; };
   var routes = {
     "#/orders":         { title: "Quản lý đơn hàng", filter: true, noHeader: true, render: renderOrders, after: afterOrders },
+    "#/dashboard":      { title: "Tổng quan", render: ph("Tổng quan") },
     "#/customers":      { title: "Quản lý khách hàng", render: ph("Quản lý khách hàng") },
     "#/create-order":   { title: "Tạo đơn hàng", render: ph("Tạo đơn hàng") },
     "#/rewards":        { title: "Quản lý hoạt động đổi quà", render: ph("Quản lý hoạt động đổi quà") },
+    "#/visits":         { title: "Hoạt động viếng thăm", render: ph("Hoạt động viếng thăm") },
+    "#/sales-routes":   { title: "Tuyến bán hàng", render: ph("Tuyến bán hàng") },
+    "#/demand-budget":  { title: "Dự báo nhu cầu & ngân sách", render: ph("Dự báo nhu cầu & ngân sách") },
     "#/ai-forecast":    { title: "AI forecast", render: ph("AI forecast") },
     "#/forecast-month": { title: "Sales Forecast Tháng", render: ph("Sales Forecast Tháng") },
     "#/forecast-itn":   { title: "Sales Forecast Tháng (ITN)", noHeader: true, render: renderItn, after: afterItn },

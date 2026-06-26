@@ -27,13 +27,17 @@ window.MockData = {
     {
       label: "Giao dịch", color: "bg-teal-500", open: true,
       children: [
+        { label: "1. Tổng quan",                   route: "#/dashboard" },
         { label: "2. Quản lý đơn hàng",            route: "#/orders" },
         { label: "3. Quản lý khách hàng",          route: "#/customers" },
         { label: "4. Tạo đơn hàng",                route: "#/create-order" },
         { label: "5. Quản lý hoạt động đổi quà",   route: "#/rewards" },
+        { label: "6. Hoạt động viếng thăm",        route: "#/visits" },
+        { label: "7. Tuyến bán hàng",              route: "#/sales-routes" },
+        { label: "8. Dự báo nhu cầu & ngân sách",  route: "#/demand-budget" },
         { label: "9. AI forecast",                 route: "#/ai-forecast" },
         { label: "10. Sales Forecast Tháng",       route: "#/forecast-month" },
-        { label: "11. Forecast nội bộ (ITN)",      route: "#/forecast-itn" },
+        { label: "11. Sales Forecast Tháng (ITN)",      route: "#/forecast-itn" },
         { label: "12. Review Salesforecast V2",    route: "#/review-sfc" },
       ],
     },
