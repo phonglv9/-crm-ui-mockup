@@ -128,17 +128,17 @@
   }
 
   /* ---------- Trang: Forecast nội bộ (ITN) ---------- */
-  var itnState = { tab: 1 }; // monthOffset dang xem (1 = M+1)
+  // Accordion: Thang (M+1/M+2/M+3) -> Nhom san pham -> bang chi tiet SKU.
+  // itnState.open: { "m1": true, "m1-g0": false, ... } luu trang thai mo/dong.
+  var itnState = { open: { m1: true } };
   var num = function (n) { return (n == null ? 0 : n).toLocaleString("vi-VN"); };
 
-  function itnMonth() {
-    var d = M.itn.months.filter(function (m) { return m.monthOffset === itnState.tab; })[0];
-    return d || M.itn.months[0];
+  function itnIsOpen(key) { return !!itnState.open[key]; }
+  function itnGroupTotal(g) {
+    return g.skus.reduce(function (s, k) { return s + (k.forecast || 0); }, 0);
   }
   function itnMonthTotal(m) {
-    return m.productGroups.reduce(function (s, g) {
-      return s + g.skus.reduce(function (ss, k) { return ss + (k.forecast || 0); }, 0);
-    }, 0);
+    return m.productGroups.reduce(function (s, g) { return s + itnGroupTotal(g); }, 0);
   }
 
   function renderItn() {
@@ -173,64 +173,74 @@
         "</div>" +
       "</div>";
 
-    // Tab thang M+1 / M+2 / M+3
-    var tabs = it.months.map(function (m) {
-      var active = m.monthOffset === itnState.tab;
-      return '<button data-itntab="' + m.monthOffset + '" class="itn-tab relative px-3 py-2.5 text-[13px] whitespace-nowrap border-b-2 -mb-px ' +
-        (active ? "border-brand-500 text-brand-600 font-semibold" : "border-transparent text-ink-700 hover:text-ink-900") +
-        '">M+' + m.monthOffset + " (" + m.forecastMonth + "/" + m.forecastYear + ")" +
-        '<span class="ml-1.5 text-ink-500 font-normal">' + num(itnMonthTotal(m)) + "</span></button>";
-    }).join("");
-
     return toolbar +
       '<div class="px-5 py-2.5 text-sm text-ink-500 shrink-0">Dữ liệu forecast nội bộ &mdash; kỳ import <span class="font-medium text-ink-700">' + monthLabel + "</span></div>" +
-      '<div id="itnTabs" class="flex items-center gap-1 px-3 border-b border-ink-300 overflow-x-auto shrink-0">' + tabs + "</div>" +
-      '<div class="flex-1 overflow-auto">' +
-        '<table class="w-full text-[13px]">' +
-          '<thead class="bg-ink-100 text-ink-500 text-left sticky top-0 z-10">' +
-            "<tr>" +
-              '<th class="px-4 py-2 font-medium border-b border-ink-300">Nhà máy</th>' +
-              '<th class="px-4 py-2 font-medium border-b border-ink-300">Mã sản phẩm</th>' +
-              '<th class="px-4 py-2 font-medium border-b border-ink-300">Tên sản phẩm</th>' +
-              '<th class="px-4 py-2 font-medium border-b border-ink-300 text-right">Forecast (FC)</th>' +
-            "</tr>" +
-          "</thead>" +
-          '<tbody id="itnRows" class="divide-y divide-ink-100"></tbody>' +
-        "</table>" +
-        '<div id="itnEmpty" class="hidden py-20 text-center text-ink-300 text-sm">Không có dữ liệu</div>' +
-      "</div>" +
+      '<div id="itnAccordion" class="flex-1 overflow-auto p-4 space-y-3"></div>' +
       itnImportModal();
   }
 
-  function paintItnRows() {
-    var m = itnMonth();
-    var tbody = document.getElementById("itnRows");
-    var empty = document.getElementById("itnEmpty");
-    if (!tbody) return;
-    if (!m.productGroups.length) { tbody.innerHTML = ""; empty.classList.remove("hidden"); return; }
-    empty.classList.add("hidden");
-
-    var html = m.productGroups.map(function (g) {
-      var groupTotal = g.skus.reduce(function (s, k) { return s + (k.forecast || 0); }, 0);
-      var head =
-        '<tr class="bg-brand-50/60"><td colspan="3" class="px-4 py-2 font-semibold text-brand-700">' + g.productGroupDesc + "</td>" +
-        '<td class="px-4 py-2 text-right font-semibold text-brand-700">' + num(groupTotal) + "</td></tr>";
-      var rows = g.skus.map(function (k) {
-        return '<tr class="hover:bg-ink-100/60">' +
-          '<td class="px-4 py-2.5">' + k.plant + "</td>" +
-          '<td class="px-4 py-2.5 font-medium text-brand-600">' + k.materialCode + "</td>" +
-          '<td class="px-4 py-2.5">' + k.materialName + "</td>" +
-          '<td class="px-4 py-2.5 text-right tabular-nums">' + num(k.forecast) + "</td>" +
-        "</tr>";
-      }).join("");
-      return head + rows;
+  // Bang chi tiet SKU cho 1 nhom san pham: Plant | Material Code | Material Name | Forecast
+  function itnDetailTable(g) {
+    var rows = g.skus.map(function (k) {
+      return '<tr class="hover:bg-ink-100/60">' +
+        '<td class="px-4 py-2.5 font-medium text-ink-700">' + (k.plant || '<span class="text-ink-300">&mdash;</span>') + "</td>" +
+        '<td class="px-4 py-2.5 font-medium text-brand-600 tabular-nums">' + k.materialCode + "</td>" +
+        '<td class="px-4 py-2.5">' + k.materialName + "</td>" +
+        '<td class="px-4 py-2.5 text-right tabular-nums">' + num(k.forecast) + "</td>" +
+      "</tr>";
     }).join("");
+    return '<div class="overflow-x-auto border-t border-ink-100 bg-ink-100/30">' +
+      '<table class="w-full text-[13px]">' +
+        '<thead class="bg-ink-100 text-ink-500 text-left">' +
+          "<tr>" +
+            '<th class="px-4 py-2 font-medium">Plant</th>' +
+            '<th class="px-4 py-2 font-medium">Material Code</th>' +
+            '<th class="px-4 py-2 font-medium">Material Name</th>' +
+            '<th class="px-4 py-2 font-medium text-right">Forecast (FC)</th>' +
+          "</tr>" +
+        "</thead>" +
+        '<tbody class="divide-y divide-ink-100 bg-white">' + rows + "</tbody>" +
+      "</table></div>";
+  }
 
-    // Hang tong cuoi bang
-    html += '<tr class="bg-ink-100 font-semibold"><td colspan="3" class="px-4 py-2.5 text-right">Tổng tháng</td>' +
-      '<td class="px-4 py-2.5 text-right tabular-nums">' + num(itnMonthTotal(m)) + "</td></tr>";
+  function paintItnAccordion() {
+    var box = document.getElementById("itnAccordion");
+    if (!box) return;
+    if (!M.itn.months.length) {
+      box.innerHTML = '<div class="py-20 text-center text-ink-300 text-sm">Không có dữ liệu</div>';
+      return;
+    }
 
-    tbody.innerHTML = html;
+    box.innerHTML = M.itn.months.map(function (m) {
+      var mKey = "m" + m.monthOffset;
+      var mOpen = itnIsOpen(mKey);
+
+      var groups = "";
+      if (mOpen) {
+        groups = m.productGroups.map(function (g, gi) {
+          var gKey = mKey + "-g" + gi;
+          var gOpen = itnIsOpen(gKey);
+          return '<div class="border-t border-ink-100">' +
+            '<button data-itnkey="' + gKey + '" class="itn-toggle w-full flex items-center gap-2 px-4 py-2.5 text-left hover:bg-ink-100/60">' +
+              '<svg class="h-4 w-4 text-ink-500 transition ' + (gOpen ? "rotate-90" : "") + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>' +
+              '<span class="font-medium text-ink-800">' + g.productGroupDesc + "</span>" +
+              '<span class="ml-auto text-sm text-ink-500 tabular-nums">' + num(itnGroupTotal(g)) + "</span>" +
+            "</button>" +
+            (gOpen ? itnDetailTable(g) : "") +
+          "</div>";
+        }).join("");
+      }
+
+      return '<div class="bg-white rounded-card shadow-card overflow-hidden">' +
+        '<button data-itnkey="' + mKey + '" class="itn-toggle w-full flex items-center gap-2 px-4 py-3 text-left hover:bg-ink-100/60">' +
+          '<svg class="h-4 w-4 text-ink-500 transition ' + (mOpen ? "rotate-90" : "") + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>' +
+          '<span class="font-semibold">Tháng ' + m.forecastMonth + "/" + m.forecastYear + "</span>" +
+          '<span class="ml-2 text-xs text-ink-400">(M+' + m.monthOffset + ")</span>" +
+          '<span class="ml-auto text-sm font-semibold text-brand-600 tabular-nums">' + num(itnMonthTotal(m)) + "</span>" +
+        "</button>" +
+        groups +
+      "</div>";
+    }).join("");
   }
 
   function itnImportModal() {
@@ -278,15 +288,15 @@
   }
 
   function afterItn() {
-    paintItnRows();
+    paintItnAccordion();
 
-    var tabBar = document.getElementById("itnTabs");
-    if (tabBar) tabBar.addEventListener("click", function (e) {
-      var btn = e.target.closest(".itn-tab");
+    var box = document.getElementById("itnAccordion");
+    if (box) box.addEventListener("click", function (e) {
+      var btn = e.target.closest(".itn-toggle");
       if (!btn) return;
-      itnState.tab = parseInt(btn.getAttribute("data-itntab"), 10);
-      document.getElementById("view").innerHTML = renderItn();
-      afterItn();
+      var key = btn.getAttribute("data-itnkey");
+      itnState.open[key] = !itnState.open[key];
+      paintItnAccordion();
     });
 
     var modal = document.getElementById("itnModal");
