@@ -130,15 +130,47 @@
   /* ---------- Trang: Forecast nội bộ (ITN) ---------- */
   // Accordion: Thang (M+1/M+2/M+3) -> Nhom san pham -> bang chi tiet SKU.
   // itnState.open: { "m1": true, "m1-g0": false, ... } luu trang thai mo/dong.
-  var itnState = { open: { m1: true } };
+  var itnState = { open: { m1: true }, search: "" };
   var num = function (n) { return (n == null ? 0 : n).toLocaleString("vi-VN"); };
 
   function itnIsOpen(key) { return !!itnState.open[key]; }
-  function itnGroupTotal(g) {
-    return g.skus.reduce(function (s, k) { return s + (k.forecast || 0); }, 0);
+
+  // Dropdown chon nhieu nha may (checkbox) cho toolbar loc.
+  // openKey: key luu trang thai mo trong itnState (vd "plantOpen").
+  function itnPlantsDropdown(openKey, attr) {
+    var it = M.itn;
+    var sel = it.plantOptions.filter(function (p) { return it.plants.indexOf(p.code) > -1; });
+    var label = sel.length ? sel.map(function (s) { return s.code; }).join(", ") : "Chọn nhà máy";
+    var panel = itnState[openKey]
+      ? '<div class="itn-plant-panel absolute z-30 mt-1 w-64 bg-white border border-ink-300 rounded-lg shadow-card p-1.5 max-h-60 overflow-auto">' +
+          it.plantOptions.map(function (p) {
+            var on = it.plants.indexOf(p.code) > -1;
+            return '<label class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-ink-100 cursor-pointer text-sm">' +
+              '<input type="checkbox" ' + attr + '="' + p.code + '" ' + (on ? "checked" : "") + ' class="h-4 w-4 accent-brand-500"/>' +
+              '<span class="font-medium text-ink-700">' + p.code + "</span>" +
+              '<span class="text-ink-500 truncate">· ' + p.name + "</span></label>";
+          }).join("") +
+        "</div>"
+      : "";
+    return '<div class="relative">' +
+      '<button type="button" data-itnplantbtn="' + openKey + '" class="min-w-48 w-full flex items-center justify-between gap-2 border border-ink-300 rounded-lg px-2 py-1.5 text-sm bg-white hover:border-brand-400 focus:border-brand-500 outline-none">' +
+        '<span class="truncate ' + (sel.length ? "text-ink-800" : "text-ink-400") + '">' + label + "</span>" +
+        '<svg class="h-4 w-4 text-ink-400 shrink-0 transition ' + (itnState[openKey] ? "rotate-180" : "") + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>' +
+      "</button>" + panel +
+    "</div>";
   }
-  function itnMonthTotal(m) {
-    return m.productGroups.reduce(function (s, g) { return s + itnGroupTotal(g); }, 0);
+
+  function paintItnPlants() {
+    var box = document.getElementById("itnPlantsBox");
+    if (box) box.innerHTML = itnPlantsDropdown("plantOpen", "data-itnplant");
+  }
+
+  // Mo phong goi API khi doi tham so (mockup: chi repaint + toast).
+  function itnReloadData() {
+    var p = document.getElementById("itnPeriod");
+    if (p) p.innerHTML = 'Dữ liệu forecast nội bộ &mdash; kỳ import <span class="font-medium text-ink-700">Tháng ' + M.itn.importMonth + "/" + M.itn.importYear + "</span>";
+    paintItnAccordion();
+    itnToast("Tải dữ liệu kỳ import T" + M.itn.importMonth + "/" + M.itn.importYear + " (mockup)");
   }
 
   function renderItn() {
@@ -149,39 +181,41 @@
     var toolbar =
       '<div class="px-5 py-3 border-b border-ink-300 shrink-0 flex flex-wrap items-end gap-3">' +
         '<div><label class="block text-[11px] text-ink-500 mb-0.5">Tháng import</label>' +
-          '<select class="border border-ink-300 rounded-lg px-2 py-1.5 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-200 outline-none">' +
+          '<select id="itnMonthSel" class="border border-ink-300 rounded-lg px-2 py-1.5 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-200 outline-none">' +
             Array.apply(null, { length: 12 }).map(function (_, i) {
-              return '<option ' + (i + 1 === it.importMonth ? "selected" : "") + '>' + (i + 1) + "</option>";
+              return '<option value="' + (i + 1) + '" ' + (i + 1 === it.importMonth ? "selected" : "") + '>' + (i + 1) + "</option>";
             }).join("") +
           "</select></div>" +
         '<div><label class="block text-[11px] text-ink-500 mb-0.5">Năm import</label>' +
-          '<input type="number" value="' + it.importYear + '" class="w-24 border border-ink-300 rounded-lg px-2 py-1.5 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-200 outline-none"/></div>' +
-        '<div class="min-w-48"><label class="block text-[11px] text-ink-500 mb-0.5">Nhà máy (plants)</label>' +
-          '<div class="flex flex-wrap gap-1">' +
-            it.plantOptions.map(function (p) {
-              var on = it.plants.indexOf(p.code) > -1;
-              return '<span class="px-2 py-1 rounded-full text-xs font-medium ' +
-                (on ? "bg-brand-50 text-brand-700 border border-brand-200" : "bg-ink-100 text-ink-500 border border-transparent") +
-                '">' + p.code + " · " + p.name + "</span>";
-            }).join("") +
-          "</div></div>" +
+          '<input id="itnYearInp" type="number" value="' + it.importYear + '" class="w-24 border border-ink-300 rounded-lg px-2 py-1.5 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-200 outline-none"/></div>' +
+        '<div><label class="block text-[11px] text-ink-500 mb-0.5">Nhà máy (plants)</label>' +
+          '<div id="itnPlantsBox"></div></div>' +
         '<div class="ml-auto flex items-center gap-2">' +
-          '<button class="px-4 py-2 rounded-lg font-medium border border-ink-300 text-ink-700 hover:bg-ink-100 text-sm">Xem dữ liệu</button>' +
+          '<input id="itnFileInput" type="file" accept=".xlsx,.xls" class="hidden"/>' +
           '<button id="btnItnImport" class="px-4 py-2 rounded-lg font-medium bg-brand-500 text-white hover:bg-brand-600 text-sm flex items-center gap-1.5">' +
             '<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>' +
             "Import Excel</button>" +
         "</div>" +
       "</div>";
 
-    return toolbar +
-      '<div class="px-5 py-2.5 text-sm text-ink-500 shrink-0">Dữ liệu forecast nội bộ &mdash; kỳ import <span class="font-medium text-ink-700">' + monthLabel + "</span></div>" +
-      '<div id="itnAccordion" class="flex-1 overflow-auto p-4 space-y-3"></div>' +
-      itnImportModal();
+    // Thanh tim kiem (theo ma / ten SKU) - dat ngay duoi toolbar thang import
+    var searchBar =
+      '<div class="px-5 py-2.5 border-b border-ink-100 shrink-0">' +
+        '<div class="relative max-w-sm">' +
+          '<svg class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg>' +
+          '<input id="itnSearch" type="text" value="' + (itnState.search || "") + '" placeholder="Tìm theo mã hoặc tên SKU" ' +
+            'class="w-full pl-9 pr-3 py-1.5 rounded-lg bg-ink-100 border border-transparent focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-200 outline-none text-sm"/>' +
+        "</div>" +
+      "</div>";
+
+    return toolbar + searchBar +
+      '<div id="itnPeriod" class="px-5 py-2.5 text-sm text-ink-500 shrink-0">Dữ liệu forecast nội bộ &mdash; kỳ import <span class="font-medium text-ink-700">' + monthLabel + "</span></div>" +
+      '<div id="itnAccordion" class="flex-1 overflow-auto p-4 space-y-3"></div>';
   }
 
   // Bang chi tiet SKU cho 1 nhom san pham: Plant | Material Code | Material Name | Forecast
-  function itnDetailTable(g) {
-    var rows = g.skus.map(function (k) {
+  function itnDetailTable(skus) {
+    var rows = skus.map(function (k) {
       return '<tr class="hover:bg-ink-100/60">' +
         '<td class="px-4 py-2.5 font-medium text-ink-700">' + (k.plant || '<span class="text-ink-300">&mdash;</span>') + "</td>" +
         '<td class="px-4 py-2.5 font-medium text-brand-600 tabular-nums">' + k.materialCode + "</td>" +
@@ -196,11 +230,21 @@
             '<th class="px-4 py-2 font-medium">Plant</th>' +
             '<th class="px-4 py-2 font-medium">Material Code</th>' +
             '<th class="px-4 py-2 font-medium">Material Name</th>' +
-            '<th class="px-4 py-2 font-medium text-right">Forecast (FC)</th>' +
+            '<th class="px-4 py-2 font-medium text-right">Forecast</th>' +
           "</tr>" +
         "</thead>" +
         '<tbody class="divide-y divide-ink-100 bg-white">' + rows + "</tbody>" +
       "</table></div>";
+  }
+
+  // Loc SKU theo ma / ten (chuoi tim kiem)
+  function itnSkuMatch(k, q) {
+    if (!q) return true;
+    return (k.materialCode || "").toLowerCase().indexOf(q) > -1 ||
+           (k.materialName || "").toLowerCase().indexOf(q) > -1;
+  }
+  function itnSumSkus(skus) {
+    return skus.reduce(function (s, k) { return s + (k.forecast || 0); }, 0);
   }
 
   function paintItnAccordion() {
@@ -211,22 +255,34 @@
       return;
     }
 
-    box.innerHTML = M.itn.months.map(function (m) {
+    var q = (itnState.search || "").trim().toLowerCase();
+    var searching = !!q;
+
+    var html = M.itn.months.map(function (m) {
       var mKey = "m" + m.monthOffset;
-      var mOpen = itnIsOpen(mKey);
+
+      // Loc nhom + sku theo tu khoa
+      var filtered = m.productGroups.map(function (g, gi) {
+        return { gi: gi, g: g, skus: g.skus.filter(function (k) { return itnSkuMatch(k, q); }) };
+      }).filter(function (fg) { return fg.skus.length > 0; });
+
+      if (searching && !filtered.length) return ""; // an thang khong co ket qua
+
+      var mOpen = searching ? true : itnIsOpen(mKey);
+      var monthTotal = filtered.reduce(function (s, fg) { return s + itnSumSkus(fg.skus); }, 0);
 
       var groups = "";
       if (mOpen) {
-        groups = m.productGroups.map(function (g, gi) {
-          var gKey = mKey + "-g" + gi;
-          var gOpen = itnIsOpen(gKey);
+        groups = filtered.map(function (fg) {
+          var gKey = mKey + "-g" + fg.gi;
+          var gOpen = searching ? true : itnIsOpen(gKey);
           return '<div class="border-t border-ink-100">' +
             '<button data-itnkey="' + gKey + '" class="itn-toggle w-full flex items-center gap-2 px-4 py-2.5 text-left hover:bg-ink-100/60">' +
               '<svg class="h-4 w-4 text-ink-500 transition ' + (gOpen ? "rotate-90" : "") + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>' +
-              '<span class="font-medium text-ink-800">' + g.productGroupDesc + "</span>" +
-              '<span class="ml-auto text-sm text-ink-500 tabular-nums">' + num(itnGroupTotal(g)) + "</span>" +
+              '<span class="font-medium text-ink-800">' + fg.g.productGroupDesc + "</span>" +
+              '<span class="ml-auto text-sm text-ink-500 tabular-nums">' + num(itnSumSkus(fg.skus)) + "</span>" +
             "</button>" +
-            (gOpen ? itnDetailTable(g) : "") +
+            (gOpen ? itnDetailTable(fg.skus) : "") +
           "</div>";
         }).join("");
       }
@@ -236,47 +292,13 @@
           '<svg class="h-4 w-4 text-ink-500 transition ' + (mOpen ? "rotate-90" : "") + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>' +
           '<span class="font-semibold">Tháng ' + m.forecastMonth + "/" + m.forecastYear + "</span>" +
           '<span class="ml-2 text-xs text-ink-400">(M+' + m.monthOffset + ")</span>" +
-          '<span class="ml-auto text-sm font-semibold text-brand-600 tabular-nums">' + num(itnMonthTotal(m)) + "</span>" +
+          '<span class="ml-auto text-sm font-semibold text-brand-600 tabular-nums">' + num(monthTotal) + "</span>" +
         "</button>" +
         groups +
       "</div>";
     }).join("");
-  }
 
-  function itnImportModal() {
-    return '' +
-      '<div id="itnModal" class="hidden fixed inset-0 z-40 bg-ink-900/40 grid place-items-center p-4">' +
-        '<div class="bg-white rounded-card shadow-card w-full max-w-lg overflow-hidden">' +
-          '<div class="px-5 py-4 border-b border-ink-100 flex items-center justify-between">' +
-            '<h3 class="font-semibold">Import forecast nội bộ (Excel)</h3>' +
-            '<button id="itnModalClose" class="h-8 w-8 grid place-items-center rounded hover:bg-ink-100 text-ink-500">' +
-              '<svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>' +
-          "</div>" +
-          '<div class="p-5 space-y-4 text-sm">' +
-            '<div class="grid grid-cols-3 gap-3">' +
-              '<div><label class="block text-[11px] text-ink-500 mb-0.5">Tháng import</label>' +
-                '<input value="' + M.itn.importMonth + '" class="w-full border border-ink-300 rounded-lg px-2 py-1.5"/></div>' +
-              '<div><label class="block text-[11px] text-ink-500 mb-0.5">Năm import</label>' +
-                '<input value="' + M.itn.importYear + '" class="w-full border border-ink-300 rounded-lg px-2 py-1.5"/></div>' +
-              '<div><label class="block text-[11px] text-ink-500 mb-0.5">Plants</label>' +
-                '<input value="' + M.itn.plants.join(",") + '" class="w-full border border-ink-300 rounded-lg px-2 py-1.5"/></div>' +
-            "</div>" +
-            '<label class="block border-2 border-dashed border-ink-300 rounded-xl py-8 text-center cursor-pointer hover:border-brand-400 hover:bg-brand-50/40">' +
-              '<svg class="h-8 w-8 mx-auto mb-2 text-brand-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>' +
-              '<div class="font-medium text-ink-700">Chọn hoặc kéo thả file Excel (.xlsx)</div>' +
-              '<div class="text-xs text-ink-500 mt-1">file_forecast_itn.xlsx</div>' +
-              '<input type="file" accept=".xlsx,.xls" class="hidden"/></label>' +
-            '<div class="bg-ink-100 rounded-lg p-3 text-xs text-ink-700">' +
-              '<div class="font-medium mb-1">Định dạng cột yêu cầu:</div>' +
-              '<code class="text-ink-700">PLANT | CODE OF PRODUCTS | NAME OF PRODUCTS | FC (M+1) | FC (M+2) | FC (M+3)</code>' +
-            "</div>" +
-          "</div>" +
-          '<div class="px-5 py-4 border-t border-ink-100 flex justify-end gap-2">' +
-            '<button id="itnModalCancel" class="px-4 py-2 rounded-lg font-medium border border-ink-300 text-ink-700 hover:bg-ink-100 text-sm">Hủy</button>' +
-            '<button id="itnModalSubmit" class="px-4 py-2 rounded-lg font-medium bg-brand-500 text-white hover:bg-brand-600 text-sm">Import</button>' +
-          "</div>" +
-        "</div>" +
-      "</div>";
+    box.innerHTML = html || '<div class="py-20 text-center text-ink-300 text-sm">Không tìm thấy SKU phù hợp</div>';
   }
 
   function itnToast(msg) {
@@ -287,9 +309,41 @@
     setTimeout(function () { t.remove(); }, 2600);
   }
 
+  function itnTogglePlant(code) {
+    var i = M.itn.plants.indexOf(code);
+    if (i > -1) M.itn.plants.splice(i, 1); else M.itn.plants.push(code);
+  }
+
+  // Click document: mo/dong dropdown nha may + dong khi bam ra ngoai.
+  function itnDocClick(e) {
+    var btn = e.target.closest("[data-itnplantbtn]");
+    if (btn) {
+      itnState.plantOpen = !itnState.plantOpen;
+      paintItnPlants();
+      return;
+    }
+    if (e.target.closest(".itn-plant-panel")) return; // tick checkbox -> giu mo
+    if (itnState.plantOpen) { itnState.plantOpen = false; paintItnPlants(); }
+  }
+
+  // Change document: tick chon nha may (toolbar) -> reload du lieu.
+  function itnDocChange(e) {
+    var t = e.target;
+    if (!t || !t.getAttribute) return;
+    if (t.getAttribute("data-itnplant") != null) {
+      itnTogglePlant(t.getAttribute("data-itnplant"));
+      paintItnPlants();
+      itnReloadData();
+    }
+  }
+
   function afterItn() {
     paintItnAccordion();
+    paintItnPlants();
 
+    var byId = function (id) { return document.getElementById(id); };
+
+    // Accordion toggle (thang / nhom)
     var box = document.getElementById("itnAccordion");
     if (box) box.addEventListener("click", function (e) {
       var btn = e.target.closest(".itn-toggle");
@@ -299,18 +353,40 @@
       paintItnAccordion();
     });
 
-    var modal = document.getElementById("itnModal");
-    var open = function () { if (modal) modal.classList.remove("hidden"); };
-    var close = function () { if (modal) modal.classList.add("hidden"); };
-    var byId = function (id) { return document.getElementById(id); };
-    if (byId("btnItnImport")) byId("btnItnImport").addEventListener("click", open);
-    if (byId("itnModalClose")) byId("itnModalClose").addEventListener("click", close);
-    if (byId("itnModalCancel")) byId("itnModalCancel").addEventListener("click", close);
-    if (byId("itnModalSubmit")) byId("itnModalSubmit").addEventListener("click", function () {
-      close();
-      itnToast("Import thành công (mockup) — không gọi API thật.");
+    // Doi thang import -> "goi API"
+    if (byId("itnMonthSel")) byId("itnMonthSel").addEventListener("change", function () {
+      M.itn.importMonth = parseInt(this.value, 10);
+      itnReloadData();
     });
-    if (modal) modal.addEventListener("click", function (e) { if (e.target === modal) close(); });
+
+    // Doi nam import -> "goi API"
+    if (byId("itnYearInp")) byId("itnYearInp").addEventListener("change", function () {
+      var y = parseInt(this.value, 10);
+      if (y >= 2000 && y <= 2100) { M.itn.importYear = y; itnReloadData(); }
+    });
+
+    // Tim kiem theo ma / ten SKU -> loc tai cho
+    if (byId("itnSearch")) byId("itnSearch").addEventListener("input", function () {
+      itnState.search = this.value;
+      paintItnAccordion();
+    });
+
+    // Dropdown nha may: mo/dong + tick checkbox. Delegate tren document.
+    document.addEventListener("click", itnDocClick);
+    document.addEventListener("change", itnDocChange);
+
+    // Import Excel: bam nut -> mo file, chon xong -> "goi API import" voi tham so dang loc
+    if (byId("btnItnImport")) byId("btnItnImport").addEventListener("click", function () {
+      var fi = byId("itnFileInput");
+      if (fi) fi.click();
+    });
+    if (byId("itnFileInput")) byId("itnFileInput").addEventListener("change", function () {
+      if (!this.files || !this.files.length) return;
+      var name = this.files[0].name;
+      var plants = M.itn.plants.length ? M.itn.plants.join(", ") : "(chưa chọn nhà máy)";
+      itnToast('Import "' + name + '" — kỳ T' + M.itn.importMonth + "/" + M.itn.importYear + ", plants: " + plants + " (mockup)");
+      this.value = ""; // reset de co the chon lai cung file
+    });
   }
 
   /* ---------- Bảng định tuyến ---------- */
@@ -322,7 +398,7 @@
     "#/rewards":        { title: "Quản lý hoạt động đổi quà", render: ph("Quản lý hoạt động đổi quà") },
     "#/ai-forecast":    { title: "AI forecast", render: ph("AI forecast") },
     "#/forecast-month": { title: "Sales Forecast Tháng", render: ph("Sales Forecast Tháng") },
-    "#/forecast-itn":   { title: "Forecast nội bộ (ITN)", noHeader: true, render: renderItn, after: afterItn },
+    "#/forecast-itn":   { title: "Sales Forecast Tháng (ITN)", noHeader: true, render: renderItn, after: afterItn },
     "#/review-sfc":     { title: "Review Salesforecast V2", render: ph("Review Salesforecast V2") },
     "#/products":       { title: "Quản lý sản phẩm", render: ph("Quản lý sản phẩm") },
     "#/plants":         { title: "Quản lý nhà máy", render: ph("Quản lý nhà máy") },
